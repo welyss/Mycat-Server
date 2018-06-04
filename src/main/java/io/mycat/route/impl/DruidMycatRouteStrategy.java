@@ -123,11 +123,11 @@ public class DruidMycatRouteStrategy extends AbstractRouteStrategy {
 		DruidShardingParseInfo ctx=  druidParser.getCtx() ;
 		rrs.setTables(ctx.getTables());
 		
-		if(visitor.isSubqueryRelationOr()){
-			String err = "In subQuery,the or condition is not supported.";
-			LOGGER.error(err);
-			throw new SQLSyntaxErrorException(err);
-		}
+//		if(visitor.isSubqueryRelationOr()){
+//			String err = "In subQuery,the or condition is not supported.";
+//			LOGGER.error(err);
+//			throw new SQLSyntaxErrorException(err);
+//		}
 		
 		/* 按照以下情况路由
 			1.2.1 可以直接路由.
@@ -196,7 +196,14 @@ public class DruidMycatRouteStrategy extends AbstractRouteStrategy {
 					throw new SQLSyntaxErrorException(err);
 				}
 			}
-			rrsResult = directRoute(rrs,ctx,schema,druidParser,statement,cachePool);
+//			rrsResult = directRoute(rrs,ctx,schema,druidParser,statement,cachePool);
+			SQLStatementParser sqlStatementParser;
+			if (schema.isNeedSupportMultiDBType()) {
+				sqlStatementParser = new MycatStatementParser(stmt);
+			} else {
+				sqlStatementParser = new MySqlStatementParser(stmt); 
+			}
+			rrsResult = directRoute(rrs,ctx,schema,druidParser, sqlStatementParser.parseStatement(),cachePool);
 		}else{
 			int subQuerySize = visitor.getSubQuerys().size();
 			if(subQuerySize==0&&ctx.getTables().size()==2){ //两表关联,考虑使用catlet

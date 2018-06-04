@@ -469,6 +469,19 @@ public class DruidSelectParser extends DefaultDruidParser {
 			rrs.setFinishedRoute(true);
 			return;
 		}
+		//有表的select语句但是不属于配置的表的直接路由到默认节点
+        boolean needRoute = false;
+        for (String table : ctx.getTables()) {
+        	if (needRoute) break;
+        	if (schema.getTables().containsKey(table)) {
+        		needRoute = true;
+        	}
+        }
+        if(!needRoute) {
+			rrs = RouterUtil.routeToSingleNode(rrs, schema.getDataNode(), rrs.getStatement());
+			rrs.setFinishedRoute(true);
+			return;
+		}
 //		RouterUtil.tryRouteForTables(schema, ctx, rrs, true, cachePool);
 		SortedSet<RouteResultsetNode> nodeSet = new TreeSet<RouteResultsetNode>();
 		boolean isAllGlobalTable = RouterUtil.isAllGlobalTable(ctx, schema);

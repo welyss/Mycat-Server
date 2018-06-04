@@ -1297,10 +1297,27 @@ public class RouterUtil {
 			String tableName = entry.getKey().toUpperCase();
 			TableConfig tableConfig = schema.getTables().get(tableName);
 			if(tableConfig == null) {
-				String msg = "can't find table define in schema "
-						+ tableName + " schema:" + schema.getName();
-				LOGGER.warn(msg);
-				throw new SQLNonTransientException(msg);
+//				String msg = "can't find table define in schema "
+//						+ tableName + " schema:" + schema.getName();
+//				LOGGER.warn(msg);
+//				throw new SQLNonTransientException(msg);
+				TableConfig tc = schema.getTables().get(tableName);
+				Collection<String> dataNodeSet;
+				if (tc != null) {
+					dataNodeSet = tc.getDataNodes();
+				} else {
+					dataNodeSet = new HashSet<String>();
+					dataNodeSet.add(schema.getDataNode());
+				}
+				if (dataNodeSet.size() > 1) {
+					routeToMultiNode(rrs.isCacheAble(), rrs, dataNodeSet, sql);
+					rrs.setFinishedRoute(true);
+					return;
+				} else {
+					rrs.setCacheAble(true);
+					routeToSingleNode(rrs, dataNodeSet.iterator().next(), sql);
+					return;
+				}
 			}
 			if(tableConfig.getDistTables()!=null && tableConfig.getDistTables().size()>0){
 				routeToDistTableNode(tableName,schema,rrs,sql, tablesAndConditions, cachePool,isSelect);
