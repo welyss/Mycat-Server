@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
 import java.sql.*;
+import java.time.Period;
 import java.util.*;
 
 import io.mycat.backend.mysql.PacketUtil;
@@ -287,6 +288,7 @@ public class JDBCConnection implements BackendConnection {
 		String orgin = rrn.getStatement();
 		// String sql = rrn.getStatement().toLowerCase();
 		// LOGGER.info("JDBC SQL:"+orgin+"|"+sc.toString());
+		long period = System.currentTimeMillis();
 		if (!modifiedSQLExecuted && rrn.isModifySQL()) {
 			modifiedSQLExecuted = true;
 		}
@@ -317,8 +319,10 @@ public class JDBCConnection implements BackendConnection {
 				} else {
 					ouputResultSet(sc, orgin);
 				}
-			} else {
+			} else if (sqlType == ServerParse.DDL || rrn.isUpdateSql()){
 				executeddl(sc, orgin);
+			} else {
+				ouputResultSet(sc, orgin);
 			}
 
 		} catch (SQLException e) {
@@ -346,7 +350,8 @@ public class JDBCConnection implements BackendConnection {
 		finally {
 			this.running = false;
 		}
-
+		period = System.currentTimeMillis() - period;
+		LOGGER.debug("executeSQL takes {} milliseconds", period);
 	}
 
 	private FieldPacket getNewFieldPacket(String charset, String fieldName) {
