@@ -72,7 +72,7 @@ import io.mycat.util.StringUtil;
 public class DruidSelectParser extends DefaultDruidParser {
 
 
-    protected boolean isNeedParseOrderAgg=true;
+    protected boolean isNeedParseOrderAgg=false;
 
     @Override
 	public void statementParse(SchemaConfig schema, RouteResultset rrs, SQLStatement stmt) {

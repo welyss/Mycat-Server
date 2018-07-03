@@ -319,7 +319,7 @@ public class JDBCConnection implements BackendConnection {
 				} else {
 					ouputResultSet(sc, orgin);
 				}
-			} else if (sqlType == ServerParse.DDL || rrn.isUpdateSql()){
+			} else if (rrn.isUpdateSql()){
 				executeddl(sc, orgin);
 			} else {
 				ouputResultSet(sc, orgin);

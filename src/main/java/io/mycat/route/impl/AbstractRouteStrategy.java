@@ -23,7 +23,7 @@ public abstract class AbstractRouteStrategy implements RouteStrategy {
 	@Override
 	public RouteResultset route(SystemConfig sysConfig, SchemaConfig schema, int sqlType, String origSQL,
 			String charset, ServerConnection sc, LayerCachePool cachePool) throws SQLNonTransientException {
-
+		long period = System.currentTimeMillis();
 		//对应schema标签checkSQLschema属性，把表示schema的字符去掉
 		if (schema.isCheckSQLSchema()) {
 			origSQL = RouterUtil.removeSchema(origSQL, schema.getName());
@@ -81,7 +81,7 @@ public abstract class AbstractRouteStrategy implements RouteStrategy {
 				rrs = routeNormalSqlWithAST(schema, stmt, rrs, charset, cachePool,sqlType,sc);
 			}
 		}
-
+		LOGGER.debug("route takes {} milliseconds.", System.currentTimeMillis() - period);
 		return rrs;
 	}
 
